@@ -1,5 +1,6 @@
 #include "generator.h"
 #include <stdlib.h>
+#include <time.h>
 #include <stdio.h>
 
 Data NewData()
@@ -34,24 +35,38 @@ Data GenerateRandomData()
     return rand_data;
 }
 
+char* check_type(Data data)
+{
+    if (data.Type == TEMPERATURE)       return "TEMPERATURE";
+    else if (data.Type == PRESSURE)     return "PRESSURE";
+    else if (data.Type == VIBRATION)    return "VIBRATION";
+
+    return NULL;
+}
+char* check_status(Data data)
+{
+    if (data.Status == OK)          return "OK";
+    else if (data.Status == WARN)   return "WARN";
+    else if (data.Status == ERR)    return "ERR";
+
+    return NULL;
+}
+
 void print_data(Data data)
 {
-    char* type = NULL;
-    char* status = NULL;
+    time_t timestamp = data.Timestamp;
+    struct tm* time_info = localtime(&timestamp);
+    char date_buff[80];
+    strftime(date_buff, sizeof(date_buff), "%Y-%m-%d %H:%M:%S", time_info);
 
-    if (data.Type == TEMPERATURE)       type = "TEMPERATURE";
-    else if (data.Type == PRESSURE)     type = "PRESSURE";
-    else if (data.Type == VIBRATION)    type = "VIBRATION";
+    char* type = check_type(data);
+    char* status = check_status(data);
 
-    if (data.Status == OK)          status = "OK";
-    else if (data.Status == WARN)   status = "WARN";
-    else if (data.Status == ERR)    status = "ERR";
-
-    printf("Date:       %ld\n", data.Timestamp);
+    printf("Date:       %s\n",  date_buff);
     printf("Sensor ID:  %ld\n", data.SensorId);
-    printf("Type:       %s\n", type);
-    printf("Value:      %f\n", data.Value);
-    printf("Status:     %s\n", status);
+    printf("Type:       %s\n",  type);
+    printf("Value:      %f\n",  data.Value);
+    printf("Status:     %s\n",  status);
 }
 
 long get_rand_timestamp(long min_date, long max_date)
