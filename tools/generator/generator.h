@@ -1,6 +1,7 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
+#include <stdio.h>
 typedef enum
 {
   OK,
@@ -19,9 +20,9 @@ typedef struct
 {
     long Timestamp;
     long SensorId;
-    Type Type;
+    char* Type;
     double Value;
-    Status Status;
+    char* Status;
 } Data;
 
 Data NewData();
@@ -29,6 +30,9 @@ Data NewData();
 Data GenerateRandomData();
 
 void print_data(Data data);
+
+int generate_csv(const char* filename, size_t target_size);
+int write_to_csv(Data data, FILE* fp);
 
 long get_rand_timestamp(long min_date, long max_date);
 long get_rand_sensor_id(long min_id, long max_id);

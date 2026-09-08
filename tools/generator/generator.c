@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 Data NewData()
 {
@@ -10,6 +11,69 @@ Data NewData()
     return data;
 }
 
+int generate_csv(const char* filename, size_t target_size)
+{
+    FILE* fp = fopen(filename, "w");
+    if (fp == NULL)
+    {
+        printf("(ERR) >> Failed to open .csv file\n");
+        fclose(fp);
+        return -1;
+    }
+
+    fprintf(fp, "Date,SensorID,Type,Value,Status\n");
+
+    size_t file_size = 0;
+
+    while(file_size < target_size)
+    {
+        Data data = GenerateRandomData();
+
+        int written = write_to_csv(data, fp);
+
+        if (written < 0)
+        {
+            printf("(ERR) >> Failed to write\n");
+            fclose(fp);
+            return -1;
+        }
+
+        file_size += (size_t)written;
+    }
+
+    printf(">> %s file was successfully generated\n", filename);
+    printf(">> File size: %ld bytes", ftell(fp));
+    fclose(fp);
+
+    return 0;
+}
+int write_to_csv(Data data, FILE* fp)
+{
+    int bytes = fprintf(
+        fp,
+        "%ld,%ld,%s,%f,%s\n",
+        data.Timestamp, data.SensorId, data.Type, data.Value, data.Status
+    );
+
+    return bytes;
+}
+
+char* check_type(Type type)
+{
+    if (type == TEMPERATURE)       return "TEMPERATURE";
+    else if (type == PRESSURE)     return "PRESSURE";
+    else if (type == VIBRATION)    return "VIBRATION";
+
+    return NULL;
+}
+char* check_status(Status status)
+{
+    if (status == OK)          return "OK";
+    else if (status == WARN)   return "WARN";
+    else if (status == ERR)    return "ERR";
+
+    return NULL;
+}
 Data GenerateRandomData()
 {
     long min_date = 1072915200, max_date = 1767225600; // from 1.1.2004 to 1.1.2026
@@ -20,9 +84,14 @@ Data GenerateRandomData()
 
     long timestamp = get_rand_timestamp(min_date, max_date);
     long sensor_id = get_rand_sensor_id(min_id, max_id);
-    Type type = get_rand_type(min_type, max_type);
+
+    Type t = get_rand_type(min_type, max_type);
+    char* type = check_type(t);
+
     double value = get_rand_val(min_val, max_val);
-    Status status = get_rand_status(min_status, max_status);
+
+    Status s = get_rand_status(min_status, max_status);
+    char* status = check_status(s);
 
     Data rand_data = {
         .Timestamp = timestamp,
@@ -35,38 +104,13 @@ Data GenerateRandomData()
     return rand_data;
 }
 
-char* check_type(Data data)
-{
-    if (data.Type == TEMPERATURE)       return "TEMPERATURE";
-    else if (data.Type == PRESSURE)     return "PRESSURE";
-    else if (data.Type == VIBRATION)    return "VIBRATION";
-
-    return NULL;
-}
-char* check_status(Data data)
-{
-    if (data.Status == OK)          return "OK";
-    else if (data.Status == WARN)   return "WARN";
-    else if (data.Status == ERR)    return "ERR";
-
-    return NULL;
-}
-
 void print_data(Data data)
 {
-    time_t timestamp = data.Timestamp;
-    struct tm* time_info = localtime(&timestamp);
-    char date_buff[80];
-    strftime(date_buff, sizeof(date_buff), "%Y-%m-%d %H:%M:%S", time_info);
-
-    char* type = check_type(data);
-    char* status = check_status(data);
-
-    printf("Date:       %s\n",  date_buff);
+    printf("Date:       %ld\n", data.Timestamp);
     printf("Sensor ID:  %ld\n", data.SensorId);
-    printf("Type:       %s\n",  type);
+    printf("Type:       %s\n",  data.Type);
     printf("Value:      %f\n",  data.Value);
-    printf("Status:     %s\n",  status);
+    printf("Status:     %s\n",  data.Status);
 }
 
 long get_rand_timestamp(long min_date, long max_date)
