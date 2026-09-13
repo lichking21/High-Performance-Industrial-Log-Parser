@@ -2,28 +2,7 @@
 #define GENERATOR_H
 
 #include <stdio.h>
-typedef enum
-{
-  OK,
-  WARN,
-  ERR,
-} Status;
-
-typedef enum
-{
-    TEMPERATURE,
-    PRESSURE,
-    VIBRATION,
-} Type;
-
-typedef struct
-{
-    long Timestamp;
-    long SensorId;
-    char* Type;
-    double Value;
-    char* Status;
-} Data;
+#include "data.h"
 
 Data NewData();
 
