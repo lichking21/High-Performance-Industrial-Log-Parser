@@ -17,7 +17,6 @@ int generate_csv(const char* filename, size_t target_size)
     if (fp == NULL)
     {
         printf("(ERR) >> Failed to open .csv file\n");
-        fclose(fp);
         return -1;
     }
 
