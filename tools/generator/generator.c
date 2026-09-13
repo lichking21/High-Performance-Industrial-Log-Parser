@@ -11,6 +11,23 @@ Data NewData()
     return data;
 }
 
+char* check_type(Type type)
+{
+    if (type == TEMPERATURE)       return "TEMPERATURE";
+    else if (type == PRESSURE)     return "PRESSURE";
+    else if (type == VIBRATION)    return "VIBRATION";
+
+    return NULL;
+}
+char* check_status(Status status)
+{
+    if (status == OK)          return "OK";
+    else if (status == WARN)   return "WARN";
+    else if (status == ERR)    return "ERR";
+
+    return NULL;
+}
+
 int generate_csv(const char* filename, size_t target_size)
 {
     FILE* fp = fopen(filename, "w");
@@ -48,31 +65,18 @@ int generate_csv(const char* filename, size_t target_size)
 }
 int write_to_csv(Data data, FILE* fp)
 {
+    char* type = check_type(data.Type);
+    char* status = check_status(data.Status);
+
     int bytes = fprintf(
         fp,
         "%ld,%ld,%s,%f,%s\n",
-        data.Timestamp, data.SensorId, data.Type, data.Value, data.Status
+        data.Timestamp, data.SensorId, type, data.Value, status
     );
 
     return bytes;
 }
 
-char* check_type(Type type)
-{
-    if (type == TEMPERATURE)       return "TEMPERATURE";
-    else if (type == PRESSURE)     return "PRESSURE";
-    else if (type == VIBRATION)    return "VIBRATION";
-
-    return NULL;
-}
-char* check_status(Status status)
-{
-    if (status == OK)          return "OK";
-    else if (status == WARN)   return "WARN";
-    else if (status == ERR)    return "ERR";
-
-    return NULL;
-}
 Data GenerateRandomData()
 {
     long min_date = 1072915200, max_date = 1767225600; // from 1.1.2004 to 1.1.2026
@@ -84,13 +88,11 @@ Data GenerateRandomData()
     long timestamp = get_rand_timestamp(min_date, max_date);
     long sensor_id = get_rand_sensor_id(min_id, max_id);
 
-    Type t = get_rand_type(min_type, max_type);
-    char* type = check_type(t);
+    Type type = get_rand_type(min_type, max_type);
 
     double value = get_rand_val(min_val, max_val);
 
-    Status s = get_rand_status(min_status, max_status);
-    char* status = check_status(s);
+    Status status = get_rand_status(min_status, max_status);
 
     Data rand_data = {
         .Timestamp = timestamp,
@@ -105,11 +107,14 @@ Data GenerateRandomData()
 
 void print_data(Data data)
 {
+    char* type = check_type(data.Type);
+    char* status = check_status(data.Status);
+
     printf("Date:       %ld\n", data.Timestamp);
     printf("Sensor ID:  %ld\n", data.SensorId);
-    printf("Type:       %s\n",  data.Type);
+    printf("Type:       %s\n",  type);
     printf("Value:      %f\n",  data.Value);
-    printf("Status:     %s\n",  data.Status);
+    printf("Status:     %s\n",  status);
 }
 
 long get_rand_timestamp(long min_date, long max_date)

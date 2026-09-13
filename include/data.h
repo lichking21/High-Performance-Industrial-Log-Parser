@@ -1,14 +1,7 @@
 #ifndef DATA_H
 #define DATA_H
 
-typedef struct
-{
-    long Timestamp;
-    long SensorId;
-    char* Type;
-    double Value;
-    char* Status;
-} Data;
+#include <stdio.h>
 
 typedef enum
 {
@@ -23,5 +16,20 @@ typedef enum
     PRESSURE,
     VIBRATION,
 } Type;
+
+typedef struct
+{
+    long Timestamp;
+    long SensorId;
+    Type Type;
+    double Value;
+    Status Status;
+} Data;
+
+typedef struct
+{
+    const char* ptr;
+    size_t len;
+} StringView;
 
 #endif
