@@ -11,21 +11,33 @@ Data NewData()
     return data;
 }
 
-char* check_type(Type type)
+const char* check_type(Type type)
 {
-    if (type == TEMPERATURE)       return "TEMPERATURE";
-    else if (type == PRESSURE)     return "PRESSURE";
-    else if (type == VIBRATION)    return "VIBRATION";
+    switch(type)
+    {
+        case TEMPERATURE:
+            return "TEMPERATURE";
+        case PRESSURE:
+            return "PRESSURE";
+        case VIBRATION:
+            return "VIBRATION";
+    }
 
-    return NULL;
+    return "UNKNOWN";
 }
-char* check_status(Status status)
+const char* check_status(Status status)
 {
-    if (status == OK)          return "OK";
-    else if (status == WARN)   return "WARN";
-    else if (status == ERR)    return "ERR";
+    switch(status)
+    {
+        case OK:
+            return "OK";
+        case WARN:
+            return "WARN";
+        case ERR:
+            return "ERR";
+    }
 
-    return NULL;
+    return "UNKNOWN";
 }
 
 int generate_csv(const char* filename, size_t target_size)
@@ -65,8 +77,8 @@ int generate_csv(const char* filename, size_t target_size)
 }
 int write_to_csv(Data data, FILE* fp)
 {
-    char* type = check_type(data.Type);
-    char* status = check_status(data.Status);
+    const char* type = check_type(data.Type);
+    const char* status = check_status(data.Status);
 
     int bytes = fprintf(
         fp,
