@@ -85,21 +85,12 @@ Data GenerateRandomData()
     double min_val = 1.0, max_val = 10000.0;
     int min_status = 0, max_status = 2;
 
-    long timestamp = get_rand_timestamp(min_date, max_date);
-    long sensor_id = get_rand_sensor_id(min_id, max_id);
-
-    Type type = get_rand_type(min_type, max_type);
-
-    double value = get_rand_val(min_val, max_val);
-
-    Status status = get_rand_status(min_status, max_status);
-
     Data rand_data = {
-        .Timestamp = timestamp,
-        .SensorId = sensor_id,
-        .Type = type,
-        .Value = value,
-        .Status = status,
+        .Timestamp  = get_rand_timestamp(min_date, max_date),
+        .SensorId   = get_rand_sensor_id(min_id, max_id),
+        .Type       = get_rand_type(min_type, max_type),
+        .Value      = get_rand_val(min_val, max_val),
+        .Status     = get_rand_status(min_status, max_status),
     };
 
     return rand_data;
