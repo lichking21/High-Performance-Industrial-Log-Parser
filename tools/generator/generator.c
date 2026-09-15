@@ -110,14 +110,12 @@ Data GenerateRandomData()
 
 void print_data(Data data)
 {
-    char* type = check_type(data.Type);
-    char* status = check_status(data.Status);
+    const char* type = check_type(data.Type);
+    const char* status = check_status(data.Status);
 
-    printf("Date:       %ld\n", data.Timestamp);
-    printf("Sensor ID:  %ld\n", data.SensorId);
-    printf("Type:       %s\n",  type);
-    printf("Value:      %f\n",  data.Value);
-    printf("Status:     %s\n",  status);
+    //printf("Date,\tSensorID,\tType,\tValue,\tStatus\n");
+    printf("%ld,\t%ld,\t%s,\t%f,\t%s\n",
+        data.Timestamp, data.SensorId, type, data.Value, status);
 }
 
 long get_rand_timestamp(long min_date, long max_date)
