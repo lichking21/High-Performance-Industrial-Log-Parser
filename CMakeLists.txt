@@ -8,6 +8,7 @@ find_package(MPI REQUIRED)
 set(APP_SOURCES
   src/main.c
   tools/generator/generator.c
+  src/data.c
   src/parser.c
   src/stats.c
 )
