@@ -32,4 +32,8 @@ typedef struct
     size_t len;
 } StringView;
 
+void print_data(Data data);
+const char* type_to_str(Type type);
+const char* status_to_str(Status status);
+
 #endif

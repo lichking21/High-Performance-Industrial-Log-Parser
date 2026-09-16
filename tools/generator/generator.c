@@ -1,4 +1,5 @@
 #include "generator.h"
+#include "data.h"
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
@@ -9,35 +10,6 @@ Data NewData()
     Data data = GenerateRandomData();
 
     return data;
-}
-
-const char* check_type(Type type)
-{
-    switch(type)
-    {
-        case TEMPERATURE:
-            return "TEMPERATURE";
-        case PRESSURE:
-            return "PRESSURE";
-        case VIBRATION:
-            return "VIBRATION";
-    }
-
-    return "UNKNOWN";
-}
-const char* check_status(Status status)
-{
-    switch(status)
-    {
-        case OK:
-            return "OK";
-        case WARN:
-            return "WARN";
-        case ERR:
-            return "ERR";
-    }
-
-    return "UNKNOWN";
 }
 
 int generate_csv(const char* filename, size_t target_size)
@@ -77,8 +49,8 @@ int generate_csv(const char* filename, size_t target_size)
 }
 int write_to_csv(Data data, FILE* fp)
 {
-    const char* type = check_type(data.Type);
-    const char* status = check_status(data.Status);
+    const char* type = type_to_str(data.Type);
+    const char* status = status_to_str(data.Status);
 
     int bytes = fprintf(
         fp,
@@ -106,16 +78,6 @@ Data GenerateRandomData()
     };
 
     return rand_data;
-}
-
-void print_data(Data data)
-{
-    const char* type = check_type(data.Type);
-    const char* status = check_status(data.Status);
-
-    //printf("Date,\tSensorID,\tType,\tValue,\tStatus\n");
-    printf("%ld,\t%ld,\t%s,\t%f,\t%s\n",
-        data.Timestamp, data.SensorId, type, data.Value, status);
 }
 
 long get_rand_timestamp(long min_date, long max_date)
