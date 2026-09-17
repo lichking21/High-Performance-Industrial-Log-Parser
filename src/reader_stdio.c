@@ -1,3 +1,4 @@
+#include "reader_stdio.h"
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
@@ -7,7 +8,7 @@
 
 #define MAXBUFF 1000
 
-int parse_file(const char* filename)
+int stdio_parse(const char* filename)
 {
     FILE* fp = fopen(filename, "r");
     if (fp == NULL)
@@ -81,7 +82,6 @@ int parse_file(const char* filename)
     throughput = ((double)size / (1024.0 * 1024.0)) / processing_time;
     upd_time(&stats, processing_time, throughput);
 
-    printf(">> File successfully parsed!\n");
     stats_print(&stats);
 
     fclose(fp);
