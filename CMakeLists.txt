@@ -11,6 +11,8 @@ set(APP_SOURCES
   src/data.c
   src/parser.c
   src/stats.c
+  src/reader_stdio.c
+  src/reader_mmap.c
 )
 
 set(APP_HEADERS
@@ -18,14 +20,20 @@ set(APP_HEADERS
   include/parser.h
   include/stats.h
   include/data.h
+  include/reader_stdio.h
+  include/reader_mmap.h
 )
 
 add_executable(app ${APP_SOURCES} ${APP_HEADERS})
 
-# Говорим компилятору, где лежат .h файлы для инклудов
 target_include_directories(app PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/tools/generator
   ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_compile_options(app PRIVATE
+  $<$<CONFIG:Debug>:-fsanitize=address,undefined>
+  $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
 )
 
 target_link_libraries(app PRIVATE MPI::MPI_C)
