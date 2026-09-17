@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -45,9 +46,8 @@ int mmap_parse(const char* filename)
         return -1;
     }
 
-    char* line_begin    = mapped;
-    char* line_end      = mapped;
-    char* file_end      = mapped + file_size;
+    const char* line_begin    = mapped;
+    const char* file_end      = mapped + file_size;
 
     Stats stats;
     size_t records      = 0;
@@ -60,27 +60,22 @@ int mmap_parse(const char* filename)
     stats_init(&stats);
     timespec_get(&start, TIME_UTC);
 
-    while (line_end < file_end)
+    while (line_begin < file_end)
     {
-        if (*line_end == '\n')
-        {
-            Data data;
-            records++;
-            size_t line_len = line_end - line_begin;
+        const char* line_end = memchr(line_begin, '\n', file_end - line_begin);
+        if (line_end == NULL)
+            line_end = file_end;
 
-            if (parse_line(line_begin, line_len, &data) != 0)
-            {
-                corrupted++;
-                continue;
-            }
+        Data data;
+        records++;
+        size_t line_len = line_end - line_begin;
 
-            if (stats_upd(&stats, &data, records, corrupted) != 0)
-                continue;
+        if (parse_line(line_begin, line_len, &data) != 0)
+            corrupted++;
 
-            line_begin = line_end + 1;
-        }
+        stats_upd(&stats, &data, records, corrupted);
 
-        line_end++;
+        line_begin = line_end + 1;
     }
 
     timespec_get(&end, TIME_UTC);
