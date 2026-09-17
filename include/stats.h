@@ -31,7 +31,12 @@ typedef struct
 } Stats;
 
 void stats_init(Stats* stats);
-int stats_upd(Stats* stats, Data* data);
-void stats_print(Stats stats);
+
+void upd_types(Stats* stats, const Data* data);
+void upd_statuses(Stats* stats, const Data* data);
+void upd_time(Stats* stats, double processing_time, double throughput);
+int stats_upd(Stats* stats, Data* data, size_t records, size_t corrupted);
+
+void stats_print(const Stats* stats);
 
 #endif

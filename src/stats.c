@@ -11,18 +11,18 @@ void stats_init(Stats* stats)
     stats->corrupted_records = 0;
 
     stats->temperature.count = 0;
-    stats->temperature.max = DBL_MAX;
-    stats->temperature.min = DBL_MIN;
+    stats->temperature.max = -DBL_MAX;
+    stats->temperature.min = DBL_MAX;
     stats->temperature.sum = 0.0;
 
     stats->pressure.count = 0;
-    stats->pressure.max = DBL_MAX;
-    stats->pressure.min = DBL_MIN;
+    stats->pressure.max = -DBL_MAX;
+    stats->pressure.min = DBL_MAX;
     stats->pressure.sum = 0.0;
 
     stats->vibration.count = 0;
-    stats->vibration.max = DBL_MAX;
-    stats->vibration.min = DBL_MIN;
+    stats->vibration.max = -DBL_MAX;
+    stats->vibration.min = DBL_MAX;
     stats->vibration.sum = 0.0;
 
     stats->status_ok = 0;
@@ -74,7 +74,13 @@ void upd_statuses(Stats* stats, const Data* data)
     }
 }
 
-int stats_upd(Stats* stats, Data* data, size_t records, size_t corrupted, double time, double throughput)
+void upd_time(Stats *stats, double processing_time, double throughput)
+{
+    stats->processing_time = processing_time;
+    stats->throughput = throughput;
+}
+
+int stats_upd(Stats* stats, Data* data, size_t records, size_t corrupted)
 {
     if (stats == NULL || data == NULL)
         return -1;
@@ -86,43 +92,40 @@ int stats_upd(Stats* stats, Data* data, size_t records, size_t corrupted, double
 
     upd_statuses(stats, data);
 
-    stats->processing_time = time;
-    stats->throughput = throughput;
-
     return 0;
 }
 
-void stats_print(Stats stats)
+void stats_print(const Stats* stats)
 {
-    printf("Records:            %ld\n", stats.total_records);
-    printf("Corrupted records:  %ld\n", stats.corrupted_records);
+    printf("Records:            %ld\n", stats->total_records);
+    printf("Corrupted records:  %ld\n", stats->corrupted_records);
 
     printf("Temperature:\n");
-    printf("  Count:    %ld\n", stats.temperature.count);
-    printf("  MAX:      %.2f\n", stats.temperature.max);
-    printf("  MIN:      %.2f\n", stats.temperature.min);
-    printf("  SUM:      %.2f\n", stats.temperature.sum);
-    printf("  AVG:      %.2f\n", stats.temperature.sum / stats.temperature.count);
+    printf("  Count:    %ld\n", stats->temperature.count);
+    printf("  MAX:      %.2f\n", stats->temperature.max);
+    printf("  MIN:      %.2f\n", stats->temperature.min);
+    printf("  SUM:      %.2f\n", stats->temperature.sum);
+    printf("  AVG:      %.2f\n", stats->temperature.sum / stats->temperature.count);
 
     printf("Pressure:\n");
-    printf("  Count:    %ld\n", stats.pressure.count);
-    printf("  MAX:      %.2f\n", stats.pressure.max);
-    printf("  MIN:      %.2f\n", stats.pressure.min);
-    printf("  SUM:      %.2f\n", stats.pressure.sum);
-    printf("  AVG:      %.2f\n", stats.pressure.sum / stats.pressure.count);
+    printf("  Count:    %ld\n", stats->pressure.count);
+    printf("  MAX:      %.2f\n", stats->pressure.max);
+    printf("  MIN:      %.2f\n", stats->pressure.min);
+    printf("  SUM:      %.2f\n", stats->pressure.sum);
+    printf("  AVG:      %.2f\n", stats->pressure.sum / stats->pressure.count);
 
     printf("Vibration:\n");
-    printf("  Count:    %ld\n", stats.vibration.count);
-    printf("  MAX:      %.2f\n", stats.vibration.max);
-    printf("  MIN:      %.2f\n", stats.vibration.min);
-    printf("  SUM:      %.2f\n", stats.vibration.sum);
-    printf("  AVG:      %.2f\n", stats.vibration.sum / stats.vibration.count);
+    printf("  Count:    %ld\n", stats->vibration.count);
+    printf("  MAX:      %.2f\n", stats->vibration.max);
+    printf("  MIN:      %.2f\n", stats->vibration.min);
+    printf("  SUM:      %.2f\n", stats->vibration.sum);
+    printf("  AVG:      %.2f\n", stats->vibration.sum / stats->vibration.count);
 
     printf("Status:\n");
-    printf("  OK:       %ld\n", stats.status_ok);
-    printf("  WARN:     %ld\n", stats.status_warn);
-    printf("  ERR:      %ld\n", stats.status_err);
+    printf("  OK:       %ld\n", stats->status_ok);
+    printf("  WARN:     %ld\n", stats->status_warn);
+    printf("  ERR:      %ld\n", stats->status_err);
 
-    printf("Processing time:    %.2f\n", stats.processing_time);
-    printf("Throughput:         %.2f MB/s\n", stats.throughput);
+    printf("Processing time:    %.2f s\n", stats->processing_time);
+    printf("Throughput:         %.2f MB/s\n", stats->throughput);
 }
