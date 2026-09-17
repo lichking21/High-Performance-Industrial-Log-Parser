@@ -39,11 +39,12 @@ int parse_line(const char* line, size_t len, Data* data)
     const char* line_end   = line + len;
     char* end;
 
+
+    // Timestamp
     const char* comma = memchr(str, ',', line_end - str);
     if (comma == NULL)
         return -1;
 
-    // Timestamp
     data->Timestamp = strtol(str, &end, 10);
     if (end != comma)
         return -1;
@@ -51,6 +52,10 @@ int parse_line(const char* line, size_t len, Data* data)
     str = comma + 1;
 
     // SensorId
+    comma = memchr(str, ',', line_end - str);
+    if (comma == NULL)
+        return -1;
+
     data->SensorId = strtol(str, &end, 10);
     if (end != comma)
         return -1;
@@ -69,6 +74,10 @@ int parse_line(const char* line, size_t len, Data* data)
     str = comma + 1;
 
     // Value
+    comma = memchr(str, ',', line_end - str);
+    if (comma == NULL)
+        return -1;
+
     data->Value = strtod(str, &end);
     if (end != comma)
         return -1;
@@ -79,9 +88,7 @@ int parse_line(const char* line, size_t len, Data* data)
     const char* status_end = line_end;
 
     while (status_end > str && (status_end[-1] == '\n' || status_end[-1] == '\r'))
-    {
         status_end--;
-    }
 
     size_t status_len = status_end - str;
 
