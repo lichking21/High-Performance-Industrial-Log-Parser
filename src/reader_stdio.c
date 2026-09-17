@@ -18,15 +18,24 @@ int parse_file(const char* filename)
     char line_buff[MAXBUFF];
 
     Stats stats;
-    size_t records = 0, corrupted = 0;
+    size_t records = 0;
+    size_t corrupted = 0;
 
     struct timespec start, end;
-    double processing_time = 0, throughput = 0;
+    double processing_time = 0;
+    double throughput = 0;
 
     // get file size
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
     rewind(fp);
+
+    if (size < 0)
+    {
+        fprintf("(ERR) >> File size can't be less than 0\n");
+        fclose(fp);
+        return -1;
+    }
 
     // skip header
     if (fgets(line_buff, MAXBUFF, fp) == NULL)
