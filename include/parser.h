@@ -3,10 +3,10 @@
 
 #include "data.h"
 
-int parse_file(const char* filename);
+int     parse_file(const char* filename);
 
-Type parse_type(size_t len, char* str);
-Status parse_status(size_t len, char* str);
-int parse_line(char* line, Data* data);
+Type    parse_type(size_t len, const char* str);
+Status  parse_status(size_t len, const char* str);
+int     parse_line(const char* line, size_t len, Data* data);
 
 #endif

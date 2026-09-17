@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 #include "stats.h"
 #include "data.h"
 #include "parser.h"
@@ -32,7 +33,7 @@ int parse_file(const char* filename)
 
     if (size < 0)
     {
-        fprintf("(ERR) >> File size can't be less than 0\n");
+        printf("(ERR) >> File size can't be less than 0\n");
         fclose(fp);
         return -1;
     }
@@ -54,11 +55,12 @@ int parse_file(const char* filename)
     while(fgets(line_buff, MAXBUFF, fp) != NULL)
     {
         Data data;
-        records += 1;
+        records++;
+        size_t len = strlen(line_buff);
 
-        if (parse_line(line_buff, &data) != 0)
+        if (parse_line(line_buff, len, &data) != 0)
         {
-            corrupted += 1;
+            corrupted++;
             continue;
         }
 
