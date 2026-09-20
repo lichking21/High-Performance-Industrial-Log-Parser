@@ -49,6 +49,18 @@ int mmap_parse(const char* filename)
     const char* line_begin    = mapped;
     const char* file_end      = mapped + file_size;
 
+    // skip header
+    const char* header_end = memchr(mapped, '\n', file_size);
+    if (header_end == NULL)
+    {
+        printf("(ERR) >> File doesn't contain data\n");
+        munmap(mapped, file_size);
+        close(fd);
+        return -1;
+    }
+
+    line_begin = header_end + 1;
+
     Stats stats;
     size_t records      = 0;
     size_t corrupted    = 0;
@@ -72,8 +84,11 @@ int mmap_parse(const char* filename)
 
         if (parse_line(line_begin, line_len, &data) != 0)
             corrupted++;
+        else
+            stats_upd(&stats, &data, records, corrupted);
 
-        stats_upd(&stats, &data, records, corrupted);
+        if (line_end == file_end)
+            break;
 
         line_begin = line_end + 1;
     }
@@ -86,6 +101,7 @@ int mmap_parse(const char* filename)
 
     stats_print(&stats);
 
+    munmap(mapped, file_size);
     close(fd);
     return 0;
 }
