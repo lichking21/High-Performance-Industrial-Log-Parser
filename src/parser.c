@@ -1,31 +1,35 @@
-#include "parser.h"
-#include "data.h"
-#include "stats.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
+#include "parser.h"
+#include "data.h"
+#include "reader_mmap.h"
 
 int parse_file(const char* filename)
 {
-
+    if (mmap_parse(filename) != 0)
+    {
+        printf("(ERR) >> Failed to parse file\n");
+        return -1;
+    }
 
     return 0;
 }
 
 Type parse_type(size_t len, const char* str)
 {
-    if (len == 11 && memcmp(str, "TEMPERATURE", 11) == 0) return TEMPERATURE;
-    else if (len == 8 && memcmp(str, "PRESSURE", 8) == 0) return PRESSURE;
-    else if (len == 9 && memcmp(str, "VIBRATION", 9) == 0) return VIBRATION;
+    if (len == 11) return TEMPERATURE;
+    else if (len == 8) return PRESSURE;
+    else if (len == 9) return VIBRATION;
 
     return -1;
 }
 Status parse_status(size_t len, const char* str)
 {
-    if (len == 2 && memcmp(str, "OK", 2) == 0) return OK;
-    else if (len == 4 && memcmp(str, "WARN", 4) == 0) return WARN;
-    else if (len == 3 && memcmp(str, "ERR", 3) == 0) return ERR;
+    if (len == 2) return OK;
+    else if (len == 4) return WARN;
+    else if (len == 3) return ERR;
 
     return -1;
 }
@@ -96,7 +100,6 @@ int parse_line(const char* line, size_t len, Data* data)
         return -1;
 
     data->Status = parse_status(status_len, str);
-
 
     return 0;
 }
