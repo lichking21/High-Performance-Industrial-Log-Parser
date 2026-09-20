@@ -3,7 +3,15 @@
 
 #include "data.h"
 
-int     parse_file(const char* filename);
+typedef int (*ParserFunc)(const char*);
+
+typedef struct
+{
+    const char* name;
+    ParserFunc func;
+}ParserType;
+
+int     parse_file(const char* filename, const char* parser);
 
 Type    parse_type(size_t len, const char* str);
 Status  parse_status(size_t len, const char* str);

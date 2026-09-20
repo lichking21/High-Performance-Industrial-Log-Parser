@@ -5,16 +5,23 @@
 #include "parser.h"
 #include "data.h"
 #include "reader_mmap.h"
+#include "reader_stdio.h"
 
-int parse_file(const char* filename)
+const ParserType parsers[] = {
+    {"-stdio", stdio_parse},
+    {"-mmap",  mmap_parse}
+};
+
+int parse_file(const char* filename, const char* parser)
 {
-    if (mmap_parse(filename) != 0)
+    for (size_t i = 0; i < sizeof(parsers) / sizeof(parsers[0]); ++i)
     {
-        printf("(ERR) >> Failed to parse file\n");
-        return -1;
+        if (strcmp(parser, parsers[i].name) == 0)
+            return parsers[i].func(filename);
     }
 
-    return 0;
+    printf("(ERR) >> Unknown parser: %s\n", parser);
+    return -1;
 }
 
 Type parse_type(size_t len, const char* str)
