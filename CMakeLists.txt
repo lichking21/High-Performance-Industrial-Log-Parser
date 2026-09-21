@@ -14,6 +14,7 @@ set(APP_SOURCES
   src/stats.c
   src/reader_stdio.c
   src/reader_mmap.c
+  src/reader_mpi.c
 )
 
 set(APP_HEADERS
@@ -23,6 +24,7 @@ set(APP_HEADERS
   include/data.h
   include/reader_stdio.h
   include/reader_mmap.h
+  include/reader_mpi.h
 )
 
 add_executable(app ${APP_SOURCES} ${APP_HEADERS})
