@@ -104,20 +104,20 @@ Throughput:         250.38 MB/s
 ## Benchmarks
 
 ### 1 GB CSV file
-```bash
--stdio
-```
+parser -stdio 
 ````text
 Processing time:    4.06 s
 Throughput:         252.24 MB/s
 ````
-
-```bash
--mmap
-```
+parser -mmap
 ````text
 Processing time:    3.52 s
 Throughput:         290.87 MB/s
+````
+parser -mpi
+````text
+Processing time:    1.43 s
+Throughput:         717.37 MB/s
 ````
 
 ## Prerequirments
