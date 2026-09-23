@@ -1,4 +1,5 @@
 #include "data.h"
+#include <stdio.h>
 
 void print_data(Data data)
 {

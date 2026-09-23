@@ -1,8 +1,6 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <stdio.h>
-
 typedef enum
 {
   OK,
@@ -25,12 +23,6 @@ typedef struct
     double Value;
     Status Status;
 } Data;
-
-typedef struct
-{
-    const char* ptr;
-    size_t len;
-} StringView;
 
 void print_data(Data data);
 const char* type_to_str(Type type);
