@@ -64,9 +64,7 @@ typedef struct
 } Stats;
 ```
 
-## Benchmark
-
-### 1 GB CSV file
+## Result Example
 
 ```text
 Records:            24341622
@@ -102,8 +100,25 @@ Processing time:    4.09 s
 Throughput:         250.38 MB/s
 ```
 
-## Current Implementation
 
-The current version uses a basic sequential parser based on `fgets()`.
+## Benchmarks
 
-The project is intended as a small experiment with processing large industrial datasets and measuring parsing performance.
+### 1 GB CSV file
+```bash
+-stdio
+```
+````text
+Processing time:    4.06 s
+Throughput:         252.24 MB/s
+````
+
+```bash
+-mmap
+```
+````text
+Processing time:    3.52 s
+Throughput:         290.87 MB/s
+````
+
+## Prerequirments
+OpenMPI library
