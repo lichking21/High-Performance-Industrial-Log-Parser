@@ -1,8 +1,8 @@
+#include <stdlib.h>
+
 int execute(int argc, char** argv);
 
 int main(int argc, char** argv)
 {
-    execute(argc, argv);
-
-    return 0;
+    return execute(argc, argv) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -5,19 +5,46 @@
 #include <time.h>
 #include "generator.h"
 #include "parser.h"
+#include "reader_kafka.h"
+#include <errno.h>
+
+static int execute_kafka_parse(int argc, char** argv, int first)
+{
+    size_t limit = 0;
+    if (argc != first + 3 && argc != first + 4)
+    {
+        fprintf(stderr, "Usage: %s --parse -kafka <brokers> <topic> <group-id> [record-limit]\n", argv[0]);
+        return -1;
+    }
+    if (argc == first + 4)
+    {
+        char* end;
+        errno = 0;
+        uintmax_t value = strtoumax(argv[first + 3], &end, 10);
+        if (argv[first + 3][0] < '0' || argv[first + 3][0] > '9' || *end || errno || value > SIZE_MAX)
+        {
+            fprintf(stderr, "(ERR) >> Invalid Kafka record limit\n");
+            return -1;
+        }
+        limit = (size_t)value;
+    }
+    return kafka_parse(argv[first], argv[first + 1], argv[first + 2], limit);
+}
 
 static int execute_parse(int argc, char** argv)
 {
+    if (argc >= 3 && strcmp(argv[2], "-kafka") == 0)
+    {
+        return execute_kafka_parse(argc, argv, 3);
+    }
     if (argc != 4)
     {
-        printf("Try to use: %s --parse <file> <-stdio | -mmap>\n", argv[0]);
+        fprintf(stderr, "Usage: %s --parse <file> <-stdio | -mmap | -mpi | -openmpi>\n", argv[0]);
+        fprintf(stderr, "       %s --parse -kafka <brokers> <topic> <group-id> [record-limit]\n", argv[0]);
         return -1;
     }
 
-    const char* filename    = argv[2];
-    const char* parser      = argv[3];
-
-    return parse_file(filename, parser);
+    return parse_file(argv[2], argv[3]);
 }
 
 static size_t convert_string(const char* str)
@@ -101,10 +128,14 @@ int execute(int argc, char** argv)
     if (argc < 2)
     {
         printf("Usage:\n");
-        printf("\t%s --parse <file> <-stdio | -mmap>\n", argv[0]);
+        printf("\t%s --parse -kafka <brokers> <topic> <group-id> [record-limit]\n", argv[0]);
+        printf("\t%s --parse <file> <-stdio | -mmap | -mpi | -openmpi>\n", argv[0]);
         printf("\t%s --gen <file> <size> <B | KB | MB | GB>\n", argv[0]);
         return -1;
     }
+
+    if (strcmp(argv[1], "--parse-kafka") == 0)
+        return execute_kafka_parse(argc, argv, 2);
 
     if (strcmp(argv[1], "--parse") == 0)
         return execute_parse(argc, argv);

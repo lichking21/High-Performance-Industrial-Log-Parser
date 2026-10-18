@@ -49,6 +49,40 @@ static char* map_file(int fd, size_t file_size)
     return map;
 }
 
+static int parse_chunk(char* begin, char* end, Stats* local_stats, char* map,
+    size_t file_size, size_t* records, size_t* corrupted)
+{
+    if (begin == NULL || end == NULL || local_stats == NULL)
+        return -1;
+
+    while(begin < end)
+    {
+        char* local_line_end = memchr(begin, '\n', (map + file_size) - begin);
+        if (local_line_end == NULL)
+            local_line_end = map + file_size;
+
+        Data local_data;
+        (*records)++;
+
+        size_t line_len = local_line_end - begin;
+
+        if (parse_line(begin, line_len, &local_data) != 0)
+            (*corrupted)++;
+        else
+        {
+            upd_types(local_stats, &local_data);
+            upd_statuses(local_stats, &local_data);
+        }
+
+        if (local_line_end == map + file_size)
+            break;
+
+        begin = local_line_end + 1;
+    }
+
+    return 0;
+}
+
 int mpi_parse(const char* filename)
 {
     // Initialize MPI
@@ -86,6 +120,7 @@ int mpi_parse(const char* filename)
     char* line_begin     = map + begin_offset;
     char* line_end       = map + end_offset;
 
+    // Skip header
     if (proc == ROOT)
     {
         char* header_end = memchr(map, '\n', file_size);
@@ -127,29 +162,13 @@ int mpi_parse(const char* filename)
 
     MPI_Barrier(WORLD);
     start = MPI_Wtime();
-    while(line_begin < line_end)
+
+    if (parse_chunk(line_begin, line_end, &local_stats, map, file_size, &records, &corrupted) != 0)
     {
-        char* local_line_end = memchr(line_begin, '\n', (map + file_size) - line_begin);
-        if (local_line_end == NULL)
-            local_line_end = map + file_size;
-
-        Data local_data;
-        records++;
-
-        size_t line_len = local_line_end - line_begin;
-
-        if (parse_line(line_begin, line_len, &local_data) != 0)
-            corrupted++;
-        else
-        {
-            upd_types(&local_stats, &local_data);
-            upd_statuses(&local_stats, &local_data);
-        }
-
-        if (local_line_end == map + file_size)
-            break;
-
-        line_begin = local_line_end + 1;
+        printf("PROC #%d >> (ERR) >> Failed to parse chunk\n", proc);
+        munmap(map, file_size);
+        MPI_Finalize();
+        return -1;
     }
 
     size_t total_records    = 0;

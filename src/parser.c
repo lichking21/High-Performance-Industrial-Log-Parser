@@ -6,10 +6,13 @@
 #include "data.h"
 #include "reader_mmap.h"
 #include "reader_stdio.h"
+#include "reader_mpi.h"
 
 const ParserType parsers[] = {
     {"-stdio", stdio_parse},
-    {"-mmap",  mmap_parse}
+    {"-mmap",  mmap_parse},
+    {"-mpi", mpi_parse},
+    {"-openmpi", mpi_parse}
 };
 
 int parse_file(const char* filename, const char* parser)

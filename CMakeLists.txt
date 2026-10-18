@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 4.0)
 
 project(LogParser C)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(MPI REQUIRED)
+find_package(OpenMP REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(RDKAFKA REQUIRED IMPORTED_TARGET rdkafka)
 
 set(APP_SOURCES
   src/main.c
@@ -15,6 +19,8 @@ set(APP_SOURCES
   src/reader_stdio.c
   src/reader_mmap.c
   src/reader_mpi.c
+  src/reader_kafka.c
+  src/kafka/consumer.c
 )
 
 set(APP_HEADERS
@@ -25,6 +31,9 @@ set(APP_HEADERS
   include/reader_stdio.h
   include/reader_mmap.h
   include/reader_mpi.h
+  include/reader_kafka.h
+  src/kafka/consumer.h
+  src/kafka/common.h
 )
 
 add_executable(app ${APP_SOURCES} ${APP_HEADERS})
@@ -39,4 +48,24 @@ target_compile_options(app PRIVATE
   $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
 )
 
-target_link_libraries(app PRIVATE MPI::MPI_C)
+target_link_libraries(app
+  PRIVATE MPI::MPI_C
+  PRIVATE OpenMP::OpenMP_C
+  PRIVATE PkgConfig::RDKAFKA
+)
+
+target_compile_features(app PRIVATE c_std_11)
+
+add_executable(kafka_producer
+  src/kafka/producer.c
+  tools/generator/generator.c
+  src/data.c
+)
+
+target_include_directories(kafka_producer PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/tools/generator
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(kafka_producer PRIVATE PkgConfig::RDKAFKA)
+target_compile_features(kafka_producer PRIVATE c_std_11)
