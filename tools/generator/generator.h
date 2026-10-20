@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "data.h"
+#include "producer.h"
 
 Data NewData();
 
@@ -12,6 +13,9 @@ void print_data(Data data);
 
 int generate_csv(const char* filename, size_t target_size);
 int write_to_csv(Data data, FILE* fp);
+
+int generate_kafka(const char* brokers, const char* topic, size_t target_size);
+int write_to_kafka(Data data, KafkaProducer* producer);
 
 long get_rand_timestamp(long min_date, long max_date);
 long get_rand_sensor_id(long min_id, long max_id);
