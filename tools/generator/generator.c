@@ -61,6 +61,61 @@ int write_to_csv(Data data, FILE* fp)
     return bytes;
 }
 
+int generate_kafka(const char* brokers, const char* topic, size_t target_size)
+{
+    KafkaProducer* producer = kafka_producer_open(brokers, topic);
+    if (producer == NULL)
+    {
+        printf("(ERR) >> Failed to open Kafka producer\n");
+        return -1;
+    }
+
+    size_t total_size = 0;
+
+    while (total_size < target_size)
+    {
+        Data data = GenerateRandomData();
+        int written = write_to_kafka(data, producer);
+
+        if (written < 0)
+        {
+            printf("(ERR) >> Failed to write to Kafka\n");
+            kafka_producer_close(producer);
+            return -1;
+        }
+
+        if ((size_t)written >= target_size - total_size)
+        {
+            total_size = target_size;
+            break;
+        }
+
+        total_size += (size_t)written;
+    }
+
+    if (kafka_producer_close(producer) != 0) return -1;
+
+    printf(">> Data was successfully written to Kafka topic %s\n", topic);
+    return 0;
+}
+
+int write_to_kafka(Data data, KafkaProducer* producer)
+{
+    char line[256];
+    int bytes = snprintf(
+        line, sizeof(line),
+        "%ld,%ld,%s,%f,%s\n",
+        data.Timestamp, data.SensorId, type_to_str(data.Type),
+        data.Value, status_to_str(data.Status)
+    );
+
+    if (bytes < 0 || (size_t)bytes >= sizeof(line)) return -1;
+
+    if (kafka_producer_write(producer, line, (size_t)bytes) != 0) return -1;
+
+    return bytes;
+}
+
 Data GenerateRandomData()
 {
     long min_date = 1072915200, max_date = 1767225600; // from 1.1.2004 to 1.1.2026

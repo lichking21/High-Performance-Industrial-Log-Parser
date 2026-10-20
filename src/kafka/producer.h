@@ -3,6 +3,10 @@
 
 #include <stddef.h>
 
-int kafka_producer(const char* brokers, const char* topic, size_t count);
+typedef struct KafkaProducer KafkaProducer;
+
+KafkaProducer* kafka_producer_open(const char* brokers, const char* topic);
+int kafka_producer_write(KafkaProducer* producer, const char* message, size_t length);
+int kafka_producer_close(KafkaProducer* producer);
 
 #endif
