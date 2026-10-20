@@ -20,6 +20,7 @@ set(APP_SOURCES
   src/reader_mmap.c
   src/reader_mpi.c
   src/reader_kafka.c
+  src/kafka/producer.c
   src/kafka/consumer.c
 )
 
@@ -39,6 +40,7 @@ set(APP_HEADERS
 add_executable(app ${APP_SOURCES} ${APP_HEADERS})
 
 target_include_directories(app PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/kafka
   ${CMAKE_CURRENT_SOURCE_DIR}/tools/generator
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
@@ -55,17 +57,3 @@ target_link_libraries(app
 )
 
 target_compile_features(app PRIVATE c_std_11)
-
-add_executable(kafka_producer
-  src/kafka/producer.c
-  tools/generator/generator.c
-  src/data.c
-)
-
-target_include_directories(kafka_producer PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/tools/generator
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
-target_link_libraries(kafka_producer PRIVATE PkgConfig::RDKAFKA)
-target_compile_features(kafka_producer PRIVATE c_std_11)
