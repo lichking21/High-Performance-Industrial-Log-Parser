@@ -58,5 +58,5 @@ build
 *.csv
 *.data
 *.txt
-.zed
 .clangd
+.zed
