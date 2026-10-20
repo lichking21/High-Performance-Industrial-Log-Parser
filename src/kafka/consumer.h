@@ -6,7 +6,7 @@
 // Payload is borrowed and valid only during the callback.
 // Return zero after processing, nonzero to stop without storing its offset.
 typedef int (*KafkaMessageHandler)(const void* payload, size_t length, void* context);
-// A zero limit consumes until SIGINT or SIGTERM.
+// A zero limit consumes all available records; otherwise stop at the limit or EOF.
 
 int kafka_consumer(const char* brokers, const char* topic, const char* group,
                    size_t limit, KafkaMessageHandler handler, void* context);
