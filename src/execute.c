@@ -51,9 +51,10 @@ static size_t convert_string(const char* str)
 {
     char* endptr;
 
+    errno = 0;
     uintmax_t val = strtoumax(str, &endptr, 10);
 
-    if (str == endptr)
+    if (str[0] < '0' || str[0] > '9' || str == endptr || *endptr || errno)
     {
         printf("(ERR) >> There is no digits in passed arguments\n");
         return -1;
@@ -85,17 +86,21 @@ static const Unit units[4] = {
 
 static int execute_gen(int argc, char** argv)
 {
-    if (argc != 5)
+    int kafka = argc >= 3 && strcmp(argv[2], "-kafka") == 0;
+    int csv = argc >= 3 && strcmp(argv[2], "-csv") == 0;
+    int size_index = kafka ? 5 : (csv ? 4 : 3);
+
+    if (argc != size_index + 2)
     {
-        printf("Try to use: %s --gen <file_name> <file_size> <size_unit>\n", argv[0]);
+        printf("Try to use: %s --gen -csv <file> <size> <B | KB | MB | GB>\n", argv[0]);
+        printf("            %s --gen -kafka <brokers> <topic> <size> <B | KB | MB | GB>\n", argv[0]);
         return -1;
     }
 
-    const char* filename = argv[2];
-    size_t target_size = convert_string(argv[3]);
+    size_t target_size = convert_string(argv[size_index]);
     if (target_size == SIZE_MAX) return -1;
 
-    char* unit = argv[4];
+    const char* unit = argv[size_index + 1];
     size_t multiplier = 0;
     for (size_t i = 0; i < sizeof(units) / sizeof(units[0]); i++)
     {
@@ -112,12 +117,16 @@ static int execute_gen(int argc, char** argv)
         return -1;
     }
 
-    if (target_size > SIZE_MAX)
+    if (target_size > SIZE_MAX / multiplier)
     {
         printf("(ERR) > File size is too large\n");
         return -1;
     }
 
+    if (kafka)
+        return generate_kafka(argv[3], argv[4], target_size * multiplier);
+
+    const char* filename = argv[csv ? 3 : 2];
     return generate_csv(filename, target_size * multiplier);
 }
 
@@ -130,7 +139,8 @@ int execute(int argc, char** argv)
         printf("Usage:\n");
         printf("\t%s --parse -kafka <brokers> <topic> <group-id> [record-limit]\n", argv[0]);
         printf("\t%s --parse <file> <-stdio | -mmap | -mpi | -openmpi>\n", argv[0]);
-        printf("\t%s --gen <file> <size> <B | KB | MB | GB>\n", argv[0]);
+        printf("\t%s --gen -csv <file> <size> <B | KB | MB | GB>\n", argv[0]);
+        printf("\t%s --gen -kafka <brokers> <topic> <size> <B | KB | MB | GB>\n", argv[0]);
         return -1;
     }
 
